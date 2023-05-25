@@ -1,0 +1,8 @@
+bin/
+iso/
+
+.DS_Store
+
+.vscode/
+.vs/
+.idea/
