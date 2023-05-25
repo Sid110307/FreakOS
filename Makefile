@@ -2,12 +2,13 @@ BIN_DIR := bin
 SOURCE_DIR := src
 
 IMG_NAME := os.bin
-SOURCE_FILES := $(wildcard $(SOURCE_DIR)/*.c)
-OBJ_FILES := $(patsubst $(SOURCE_DIR)/%.c,$(BIN_DIR)/%.o,$(SOURCE_FILES))
 LINKER_FILE := linker.ld
 
+SOURCE_FILES := $(wildcard $(SOURCE_DIR)/*.c)
+OBJ_FILES := $(patsubst $(SOURCE_DIR)/%.c,$(BIN_DIR)/%.o,$(SOURCE_FILES))
+
 ASMFLAGS := -f elf32
-CFLAGS := -m32 -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+CFLAGS := -m32 -std=gnu99 -ffreestanding -mno-red-zone -O2 -Wall -Wextra
 LDFLAGS := -m elf_i386
 
 .PHONY: all clean run iso
@@ -19,19 +20,18 @@ clean:
 run: iso
 	qemu-system-i386 -cdrom $(BIN_DIR)/os.iso
 
-iso: $(BIN_DIR)/boot.o $(BIN_DIR)/kernel.o
-	mkdir -p iso/boot/grub
-	cp $(BIN_DIR)/$(IMG_NAME) iso/boot/$(IMG_NAME)
-	cp grub.cfg iso/boot/grub/grub.cfg
-	grub-mkrescue -o $(BIN_DIR)/os.iso iso
+iso: $(BIN_DIR)/boot.o $(OBJ_FILES)
+	mkdir -p $@/boot/grub
+	cp $(BIN_DIR)/$(IMG_NAME) $@/boot/$(IMG_NAME)
+	cp grub.cfg $@/boot/grub/grub.cfg
+	grub-mkrescue -o $(BIN_DIR)/os.iso $@
 
 $(BIN_DIR)/boot.o: boot.asm
 	mkdir -p $(BIN_DIR)
 	nasm $(ASMFLAGS) $< -o $@
 
-$(BIN_DIR)/kernel.o: $(SOURCE_FILES)
-	mkdir -p $(BIN_DIR)
-	gcc $(CFLAGS) -c $^ -o $@
+$(BIN_DIR)/%.o: $(SOURCE_DIR)/%.c
+	gcc $(CFLAGS) -c $< -o $@
 
-$(BIN_DIR)/$(IMG_NAME): $(BIN_DIR)/boot.o $(BIN_DIR)/kernel.o
-	ld $(LDFLAGS) -T $(LINKER_FILE) -o $@ $^
+$(BIN_DIR)/$(IMG_NAME): $(BIN_DIR)/boot.o $(OBJ_FILES)
+	ld $(LDFLAGS) -T $(LINKER_FILE) $^ -o $@
