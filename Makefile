@@ -9,7 +9,7 @@ OBJ_FILES := $(patsubst $(SOURCE_DIR)/%.c,$(BIN_DIR)/%.o,$(SOURCE_FILES))
 
 ASMFLAGS := -f elf32
 CFLAGS := -m32 -std=gnu99 -ffreestanding -mno-red-zone -O2 -Wall -Wextra
-LDFLAGS := -m elf_i386
+LDFLAGS := -m elf_i386 -nostdlib
 
 .PHONY: all clean run iso
 all: $(BIN_DIR)/$(IMG_NAME) run

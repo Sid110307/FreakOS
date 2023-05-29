@@ -9,15 +9,24 @@
 // - Implement a graphical interface
 
 #include "./include/renderer.h"
+#include "./include/gdt.h"
 
 void main(void)
 {
-	terminalInit();
-	terminalWriteString("Hello, World!\n");
+    gdtInit();
+    terminalInit();
 
-	terminalSetColor(COLOR_BROWN, COLOR_LIGHT_GREEN);
-	terminalWriteString("This is weird!\n");
+    terminalSetColor(COLOR_BROWN, COLOR_LIGHT_GREY);
+    terminalWriteString("Hello, world!\n");
 
-	terminalSetColor(COLOR_LIGHT_RED, COLOR_LIGHT_BLUE);
-	terminalWriteString("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum elementum, enim at facilisis viverra, urna ante congue sem, consectetur vehicula nisl odio id urna. Nullam consequat libero in nibh lobortis hendrerit.\n");
+    terminalSetColor(COLOR_LIGHT_RED, COLOR_LIGHT_GREEN);
+    terminalWriteString("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc semper enim nec pretium "
+                        "tincidunt. Donec tincidunt mauris elementum neque sodales congue. Nulla in nisl eu nibh "
+                        "luctus vestibulum vitae a neque. Pellentesque ac nulla tincidunt, tristique diam ut, feugiat "
+                        "tortor. Sed nisl sem, ultricies nec condimentum vel, hendrerit vel dolor. Vivamus ultricies "
+                        "sollicitudin neque, eget aliquet augue gravida at. Nullam fermentum diam quis mollis auctor. "
+                        "Phasellus elementum ultrices arcu eu porta. Vestibulum ante enim, ornare eu efficitur a, "
+                        "finibus eu arcu. Nam justo quam, suscipit at metus at, luctus pharetra felis. Curabitur "
+                        "finibus porttitor lacinia. Aliquam sapien justo, fermentum ac risus quis, volutpat sodales "
+                        "dolor.\n");
 }
