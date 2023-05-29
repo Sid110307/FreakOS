@@ -10,23 +10,40 @@
 
 #include "./include/renderer.h"
 #include "./include/gdt.h"
+#include "./include/idt.h"
+#include "./include/keyboard.h"
+
+static inline int strcmp(const char *str1, const char *str2)
+{
+    while (*str1 && *str1 == *str2)
+    {
+        str1++;
+        str2++;
+    }
+
+    return *(const unsigned char *) str1 - *(const unsigned char *) str2;
+}
 
 void main(void)
 {
     gdtInit();
-    terminalInit();
+    idtInit();
+    keyboardInit();
+    rendererInit();
 
-    terminalSetColor(COLOR_BROWN, COLOR_LIGHT_GREY);
-    terminalWriteString("Hello, world!\n");
+    rendererSetColor(COLOR_WHITE, COLOR_BLACK);
+    while (1)
+    {
+        const char *c = keyboardGetKey();
 
-    terminalSetColor(COLOR_LIGHT_RED, COLOR_LIGHT_GREEN);
-    terminalWriteString("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc semper enim nec pretium "
-                        "tincidunt. Donec tincidunt mauris elementum neque sodales congue. Nulla in nisl eu nibh "
-                        "luctus vestibulum vitae a neque. Pellentesque ac nulla tincidunt, tristique diam ut, feugiat "
-                        "tortor. Sed nisl sem, ultricies nec condimentum vel, hendrerit vel dolor. Vivamus ultricies "
-                        "sollicitudin neque, eget aliquet augue gravida at. Nullam fermentum diam quis mollis auctor. "
-                        "Phasellus elementum ultrices arcu eu porta. Vestibulum ante enim, ornare eu efficitur a, "
-                        "finibus eu arcu. Nam justo quam, suscipit at metus at, luctus pharetra felis. Curabitur "
-                        "finibus porttitor lacinia. Aliquam sapien justo, fermentum ac risus quis, volutpat sodales "
-                        "dolor.\n");
+        rendererWriteString("Scancode: 0x");
+        rendererWriteHex(keyboardGetScancode());
+        rendererWriteString(" | Char: ");
+
+        if (strcmp(c, "ERROR") == 0) rendererSetColor(COLOR_RED, COLOR_BLACK);
+        else rendererSetColor(COLOR_WHITE, COLOR_BLACK);
+
+        rendererWriteString(c);
+        rendererWriteString("                \r");
+    }
 }

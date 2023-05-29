@@ -18,5 +18,4 @@ enum Colors
     COLOR_LIGHT_MAGENTA,
     COLOR_LIGHT_BROWN,
     COLOR_WHITE,
-    COLOR_DEFAULT = 0xFF,
 };

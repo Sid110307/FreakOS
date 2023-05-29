@@ -1,7 +1,7 @@
 #include "./include/renderer.h"
 
-size_t terminalRow, terminalColumn;
-enum Colors terminalColor;
+size_t rendererRow, rendererColumn;
+enum Colors rendererColor;
 __attribute__((unused)) uint16_t *videoMemory;
 
 static inline enum Colors vgaEntryColor(enum Colors fg, enum Colors bg)
@@ -22,88 +22,102 @@ static inline size_t strlen(const char *str)
     return len;
 }
 
-void terminalInit(void)
+void rendererInit(void)
 {
-    terminalRow = 0;
-    terminalColumn = 0;
-    terminalColor = vgaEntryColor(COLOR_WHITE, COLOR_BLACK);
+    rendererRow = 0;
+    rendererColumn = 0;
+    rendererColor = vgaEntryColor(COLOR_WHITE, COLOR_BLACK);
     videoMemory = (uint16_t *) 0xB8000;
 
     for (size_t y = 0; y < SCREEN_HEIGHT; ++y)
         for (size_t x = 0; x < SCREEN_WIDTH; ++x)
-            videoMemory[y * SCREEN_WIDTH + x] = vgaEntry(' ', terminalColor);
+            videoMemory[y * SCREEN_WIDTH + x] = vgaEntry(' ', rendererColor);
 }
 
-void terminalSetColor(enum Colors fg, enum Colors bg)
+void rendererSetColor(enum Colors fg, enum Colors bg)
 {
-    terminalColor = vgaEntryColor(fg, bg);
+    rendererColor = vgaEntryColor(fg, bg);
 }
 
-void terminalPutCharAt(char c, enum Colors color, size_t x, size_t y)
+void rendererPutCharAt(char c, enum Colors color, size_t x, size_t y)
 {
     const size_t index = y * SCREEN_WIDTH + x;
     videoMemory[index] = vgaEntry(c, color);
 }
 
-void terminalPutChar(char c)
+void rendererPutChar(char c)
 {
     switch (c)
     {
         case '\n':
-            terminalColumn = 0;
-            terminalRow++;
+            rendererColumn = 0;
+            rendererRow++;
             break;
         case '\t':
-            terminalColumn += 4;
+            rendererColumn += 4;
             break;
         case '\b':
-            terminalColumn--;
+            rendererColumn--;
             break;
         case '\r':
-            terminalColumn = 0;
+            rendererColumn = 0;
             break;
         case '\f':
-            terminalRow = 0;
+            rendererRow = 0;
             break;
         case '\v':
-            terminalRow++;
+            rendererRow++;
             break;
         default:
-            terminalPutCharAt(c, terminalColor, terminalColumn, terminalRow);
-            terminalColumn++;
+            rendererPutCharAt(c, rendererColor, rendererColumn, rendererRow);
+            rendererColumn++;
 
             break;
     }
 
-    if (terminalColumn >= SCREEN_WIDTH)
+    if (rendererColumn >= SCREEN_WIDTH)
     {
-        terminalColumn = 0;
-        terminalRow++;
+        rendererColumn = 0;
+        rendererRow++;
     }
 
-    if (terminalRow >= SCREEN_HEIGHT)
+    if (rendererRow >= SCREEN_HEIGHT)
     {
-        terminalScroll();
-        terminalRow--;
+        rendererScroll();
+        rendererRow--;
     }
 }
 
-void terminalScroll(void)
+void rendererScroll(void)
 {
     for (size_t y = 0; y < SCREEN_HEIGHT - 1; ++y)
         for (size_t x = 0; x < SCREEN_WIDTH; ++x)
             videoMemory[y * SCREEN_WIDTH + x] = videoMemory[(y + 1) * SCREEN_WIDTH + x];
 
     for (size_t x = 0; x < SCREEN_WIDTH; ++x)
-        videoMemory[(SCREEN_HEIGHT - 1) * SCREEN_WIDTH + x] = vgaEntry(' ', terminalColor);
+        videoMemory[(SCREEN_HEIGHT - 1) * SCREEN_WIDTH + x] = vgaEntry(' ', rendererColor);
 }
 
-void terminalWrite(const char *data, size_t size)
+void rendererWrite(const char *data, size_t size)
 {
-    for (size_t i = 0; i < size; ++i) terminalPutChar(data[i]);
+    for (size_t i = 0; i < size; ++i) rendererPutChar(data[i]);
 }
 
-void terminalWriteString(const char *data)
+void rendererWriteString(const char *data)
 {
-    terminalWrite(data, strlen(data));
+    rendererWrite(data, strlen(data));
+}
+
+void rendererWriteHex(uint32_t n)
+{
+    char *hex = "0123456789ABCDEF";
+    char buffer[9] = {0};
+
+    for (int i = 7; i >= 0; --i)
+    {
+        buffer[i] = hex[n & 0xF];
+        n >>= 4;
+    }
+
+    rendererWriteString(buffer);
 }
