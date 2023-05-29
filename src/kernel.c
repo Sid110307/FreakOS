@@ -36,13 +36,9 @@ void main(void)
     {
         const char *c = keyboardGetKey();
 
-        rendererWriteString("Scancode: 0x");
-        rendererWriteHex(keyboardGetScancode());
-        rendererWriteString(" | Char: ");
-
+        rendererWriteString("Char: ");
         if (strcmp(c, "ERROR") == 0) rendererSetColor(COLOR_RED, COLOR_BLACK);
         else rendererSetColor(COLOR_WHITE, COLOR_BLACK);
-
         rendererWriteString(c);
         rendererWriteString("                \r");
     }

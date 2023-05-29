@@ -2,9 +2,10 @@
 
 #include <stdint.h>
 
-#define SHIFT_PRESSED 0x2A
-#define SHIFT_RELEASED 0xAA
-#define CAPS_LOCK_TOGGLE 0x3A
+#define PS2_DATA_PORT 0x60
+#define PS2_STATUS_PORT 0x64
+
+#define PS2_STATUS_OUTPUT_BUFFER 0x1
 
 void keyboardInit(void);
 uint8_t keyboardGetScancode(void);
