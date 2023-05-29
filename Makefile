@@ -1,7 +1,7 @@
 BIN_DIR := bin
 SOURCE_DIR := src
 
-IMG_NAME := os.bin
+IMG_NAME := os.img
 LINKER_FILE := linker.ld
 
 ASM_SOURCE_FILES := $(wildcard $(SOURCE_DIR)/asm/*.asm)
@@ -42,3 +42,4 @@ $(BIN_DIR)/%.o: $(SOURCE_DIR)/%.c
 
 $(BIN_DIR)/$(IMG_NAME): $(BIN_DIR)/boot.o $(ASM_OBJ_FILES) $(OBJ_FILES)
 	ld $(LDFLAGS) -T $(LINKER_FILE) $^ -o $@
+
