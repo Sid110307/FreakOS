@@ -15,4 +15,4 @@ void rendererPutChar(char c);
 void rendererScroll(void);
 void rendererWrite(const char *data, size_t size);
 void rendererWriteString(const char *data);
-void rendererWriteHex(uint32_t n);
+void rendererClearScreen(void);

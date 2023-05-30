@@ -108,16 +108,9 @@ void rendererWriteString(const char *data)
     rendererWrite(data, strlen(data));
 }
 
-void rendererWriteHex(uint32_t n)
+void rendererClearScreen(void)
 {
-    char *hex = "0123456789ABCDEF";
-    char buffer[9] = {0};
-
-    for (int i = 7; i >= 0; --i)
-    {
-        buffer[i] = hex[n & 0xF];
-        n >>= 4;
-    }
-
-    rendererWriteString(buffer);
+    for (size_t y = 0; y < SCREEN_HEIGHT; ++y)
+        for (size_t x = 0; x < SCREEN_WIDTH; ++x)
+            videoMemory[y * SCREEN_WIDTH + x] = vgaEntry(' ', rendererColor);
 }

@@ -1,8 +1,8 @@
 #include "./include/keyboard.h"
 
-static inline void outPort(uint16_t port, uint8_t value)
+static inline void outPort(uint8_t value)
 {
-    asm volatile("outb %0, %1" : : "a"(value), "Nd"(port));
+    asm volatile("outb %0, %1" : : "a"(value), "Nd"(PS2_DATA_PORT));
 }
 
 static inline uint8_t inPort(uint16_t port)
@@ -16,11 +16,11 @@ static inline uint8_t inPort(uint16_t port)
 void keyboardInit(void)
 {
     while (inPort(PS2_STATUS_PORT) & PS2_STATUS_OUTPUT_BUFFER) inPort(PS2_DATA_PORT);
+    outPort(0xF5);
 
-    outPort(PS2_DATA_PORT, 0xF5);
     while (inPort(PS2_STATUS_PORT) & PS2_STATUS_OUTPUT_BUFFER) inPort(PS2_DATA_PORT);
+    outPort(0xF4);
 
-    outPort(PS2_DATA_PORT, 0xF4);
     while (inPort(PS2_STATUS_PORT) & PS2_STATUS_OUTPUT_BUFFER) inPort(PS2_DATA_PORT);
 }
 
@@ -30,10 +30,10 @@ uint8_t keyboardGetScancode(void)
     return inPort(PS2_DATA_PORT);
 }
 
-const char *keyboardGetKey(void)
+const char *keyboardGetKey(int onlyChar)
 {
     uint8_t scancode = keyboardGetScancode();
-    static uint8_t shift = 0, caps = 0;
+    static uint8_t shift = 0, capsLock = 0, numLock = 0;
 
     if (scancode & 0x80)
     {
@@ -45,7 +45,10 @@ const char *keyboardGetKey(void)
                 shift = 0;
                 return "";
             case 0x3A:
-                caps ^= 1;
+                capsLock ^= 1;
+                return "";
+            case 0x45:
+                numLock ^= 1;
                 return "";
             default:
                 return "";
@@ -79,159 +82,156 @@ const char *keyboardGetKey(void)
         case 0x0D:
             return shift ? "+" : "=";
         case 0x0E:
-            return "Backspace";
+            return onlyChar == 0 ? "Backspace" : "\b";
         case 0x0F:
-            return "Tab";
+            return onlyChar == 0 ? "Tab" : "\t";
         case 0x10:
-            return (shift ^ caps) ? "Q" : "q";
+            return (shift ^ capsLock) ? "Q" : "q";
         case 0x11:
-            return (shift ^ caps) ? "W" : "w";
+            return (shift ^ capsLock) ? "W" : "w";
         case 0x12:
-            return (shift ^ caps) ? "E" : "e";
+            return (shift ^ capsLock) ? "E" : "e";
         case 0x13:
-            return (shift ^ caps) ? "R" : "r";
+            return (shift ^ capsLock) ? "R" : "r";
         case 0x14:
-            return (shift ^ caps) ? "T" : "t";
+            return (shift ^ capsLock) ? "T" : "t";
         case 0x15:
-            return (shift ^ caps) ? "Y" : "y";
+            return (shift ^ capsLock) ? "Y" : "y";
         case 0x16:
-            return (shift ^ caps) ? "U" : "u";
+            return (shift ^ capsLock) ? "U" : "u";
         case 0x17:
-            return (shift ^ caps) ? "I" : "i";
+            return (shift ^ capsLock) ? "I" : "i";
         case 0x18:
-            return (shift ^ caps) ? "O" : "o";
+            return (shift ^ capsLock) ? "O" : "o";
         case 0x19:
-            return (shift ^ caps) ? "P" : "p";
+            return (shift ^ capsLock) ? "P" : "p";
         case 0x1A:
-            return (shift ^ caps) ? "{" : "[";
+            return (shift ^ capsLock) ? "{" : "[";
         case 0x1B:
-            return (shift ^ caps) ? "}" : "]";
+            return (shift ^ capsLock) ? "}" : "]";
         case 0x1C:
-            return "Enter";
+            return onlyChar == 0 ? "Enter" : "\n";
         case 0x1D:
-            return "Left Control";
+            return onlyChar == 0 ? "Left Control" : "";
         case 0x1E:
-            return (shift ^ caps) ? "A" : "a";
+            return (shift ^ capsLock) ? "A" : "a";
         case 0x1F:
-            return (shift ^ caps) ? "S" : "s";
+            return (shift ^ capsLock) ? "S" : "s";
         case 0x20:
-            return (shift ^ caps) ? "D" : "d";
+            return (shift ^ capsLock) ? "D" : "d";
         case 0x21:
-            return (shift ^ caps) ? "F" : "f";
+            return (shift ^ capsLock) ? "F" : "f";
         case 0x22:
-            return (shift ^ caps) ? "G" : "g";
+            return (shift ^ capsLock) ? "G" : "g";
         case 0x23:
-            return (shift ^ caps) ? "H" : "h";
+            return (shift ^ capsLock) ? "H" : "h";
         case 0x24:
-            return (shift ^ caps) ? "J" : "j";
+            return (shift ^ capsLock) ? "J" : "j";
         case 0x25:
-            return (shift ^ caps) ? "K" : "k";
+            return (shift ^ capsLock) ? "K" : "k";
         case 0x26:
-            return (shift ^ caps) ? "L" : "l";
+            return (shift ^ capsLock) ? "L" : "l";
         case 0x27:
-            return (shift ^ caps) ? ":" : ";";
+            return (shift ^ capsLock) ? ":" : ";";
         case 0x28:
-            return (shift ^ caps) ? "\"" : "'";
+            return (shift ^ capsLock) ? "\"" : "'";
         case 0x29:
-            return (shift ^ caps) ? "~" : "`";
+            return (shift ^ capsLock) ? "~" : "`";
         case 0x2A:
             shift = 1;
-            return "Left Shift";
+            return onlyChar == 0 ? "Left Shift" : "";
         case 0x2B:
-            return (shift ^ caps) ? "|" : "\\";
+            return (shift ^ capsLock) ? "|" : "\\";
         case 0x2C:
-            return (shift ^ caps) ? "Z" : "z";
+            return (shift ^ capsLock) ? "Z" : "z";
         case 0x2D:
-            return (shift ^ caps) ? "X" : "x";
+            return (shift ^ capsLock) ? "X" : "x";
         case 0x2E:
-            return (shift ^ caps) ? "C" : "c";
+            return (shift ^ capsLock) ? "C" : "c";
         case 0x2F:
-            return (shift ^ caps) ? "V" : "v";
+            return (shift ^ capsLock) ? "V" : "v";
         case 0x30:
-            return (shift ^ caps) ? "B" : "b";
+            return (shift ^ capsLock) ? "B" : "b";
         case 0x31:
-            return (shift ^ caps) ? "N" : "n";
+            return (shift ^ capsLock) ? "N" : "n";
         case 0x32:
-            return (shift ^ caps) ? "M" : "m";
+            return (shift ^ capsLock) ? "M" : "m";
         case 0x33:
-            return (shift ^ caps) ? "<" : ",";
+            return (shift ^ capsLock) ? "<" : ",";
         case 0x34:
-            return (shift ^ caps) ? ">" : ".";
+            return (shift ^ capsLock) ? ">" : ".";
         case 0x35:
-            return (shift ^ caps) ? "?" : "/";
+            return (shift ^ capsLock) ? "?" : "/";
         case 0x36:
             shift = 1;
-            return "Right Shift";
+            return onlyChar == 0 ? "Right Shift" : "";
         case 0x37:
-            return "Keypad *";
+            return onlyChar == 0 ? "Keypad *" : "*";
         case 0x38:
-            return "Left Alt";
+            return onlyChar == 0 ? "Left Alt" : "";
         case 0x39:
-            return "Space";
+            return onlyChar == 0 ? "Space" : " ";
         case 0x3A:
-            caps ^= 1;
-            return "Caps Lock";
+            capsLock ^= 1;
+            return onlyChar == 0 ? "Caps Lock" : "";
         case 0x3B:
-            return "F1";
+            return onlyChar == 0 ? "F1" : "";
         case 0x3C:
-            return "F2";
+            return onlyChar == 0 ? "F2" : "";
         case 0x3D:
-            return "F3";
+            return onlyChar == 0 ? "F3" : "";
         case 0x3E:
-            return "F4";
+            return onlyChar == 0 ? "F4" : "";
         case 0x3F:
-            return "F5";
+            return onlyChar == 0 ? "F5" : "";
         case 0x40:
-            return "F6";
+            return onlyChar == 0 ? "F6" : "";
         case 0x41:
-            return "F7";
+            return onlyChar == 0 ? "F7" : "";
         case 0x42:
-            return "F8";
+            return onlyChar == 0 ? "F8" : "";
         case 0x43:
-            return "F9";
+            return onlyChar == 0 ? "F9" : "";
         case 0x44:
-            return "F10";
+            return onlyChar == 0 ? "F10" : "";
         case 0x45:
-            return "Num Lock";
+            return onlyChar == 0 ? "Num Lock" : "";
         case 0x46:
-            return "Scroll Lock";
+            return onlyChar == 0 ? "Scroll Lock" : "";
         case 0x47:
-            return "Keypad 7";
+            return onlyChar == 0 ? "Keypad 7" : numLock ? "7" : "Home";
         case 0x48:
-            return "Keypad 8";
+            return onlyChar == 0 ? "Keypad 8" : numLock ? "8" : "Up";
         case 0x49:
-            return "Keypad 9";
+            return onlyChar == 0 ? "Keypad 9" : numLock ? "9" : "PgUp";
         case 0x4A:
-            return "Keypad -";
+            return onlyChar == 0 ? "Keypad -" : "-";
         case 0x4B:
-            return "Keypad 4";
+            return onlyChar == 0 ? "Keypad 4" : numLock ? "4" : "Left";
         case 0x4C:
-            return "Keypad 5";
+            return onlyChar == 0 ? "Keypad 5" : numLock ? "5" : "";
         case 0x4D:
-            return "Keypad 6";
+            return onlyChar == 0 ? "Keypad 6" : numLock ? "6" : "Right";
         case 0x4E:
-            return "Keypad +";
+            return onlyChar == 0 ? "Keypad +" : "+";
         case 0x4F:
-            return "Keypad 1";
+            return onlyChar == 0 ? "Keypad 1" : numLock ? "1" : "End";
         case 0x50:
-            return "Keypad 2";
+            return onlyChar == 0 ? "Keypad 2" : numLock ? "2" : "Down";
         case 0x51:
-            return "Keypad 3";
+            return onlyChar == 0 ? "Keypad 3" : numLock ? "3" : "PgDn";
         case 0x52:
-            return "Keypad 0";
+            return onlyChar == 0 ? "Keypad 0" : numLock ? "0" : "Insert";
         case 0x53:
-            return "Keypad .";
-        case 0x54:
-            return "Unknown";
-        case 0x55:
-            return "Unknown";
-        case 0x56:
-            return "Unknown";
+            return onlyChar == 0 ? "Keypad ." : numLock ? "." : "Delete";
         case 0x57:
-            return "F11";
+            return onlyChar == 0 ? "F11" : "";
         case 0x58:
-            return "F12";
+            return onlyChar == 0 ? "F12" : "";
+        case 0x54:
+        case 0x55:
+        case 0x56:
         default:
-            return "Unknown";
+            return onlyChar == 0 ? "Unknown" : "";
     }
 }
