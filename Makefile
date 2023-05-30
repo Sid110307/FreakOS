@@ -23,15 +23,11 @@ clean:
 run: iso
 	qemu-system-i386 -cdrom $(BIN_DIR)/os.iso
 
-iso: $(BIN_DIR)/boot.o $(ASM_OBJ_FILES) $(OBJ_FILES)
+iso: $(ASM_OBJ_FILES) $(OBJ_FILES)
 	mkdir -p $@/boot/grub
 	cp $(BIN_DIR)/$(IMG_NAME) $@/boot/$(IMG_NAME)
 	cp grub.cfg $@/boot/grub/grub.cfg
 	grub-mkrescue -o $(BIN_DIR)/os.iso $@
-
-$(BIN_DIR)/boot.o: boot.asm
-	mkdir -p $(BIN_DIR)
-	nasm $(ASMFLAGS) $< -o $@
 
 $(BIN_DIR)/asm/%.o: $(SOURCE_DIR)/asm/%.asm
 	mkdir -p $(BIN_DIR)/asm
@@ -40,6 +36,6 @@ $(BIN_DIR)/asm/%.o: $(SOURCE_DIR)/asm/%.asm
 $(BIN_DIR)/%.o: $(SOURCE_DIR)/%.c
 	gcc $(CFLAGS) -c $< -o $@
 
-$(BIN_DIR)/$(IMG_NAME): $(BIN_DIR)/boot.o $(ASM_OBJ_FILES) $(OBJ_FILES)
+$(BIN_DIR)/$(IMG_NAME): $(ASM_OBJ_FILES) $(OBJ_FILES)
 	ld $(LDFLAGS) -T $(LINKER_FILE) $^ -o $@
 
