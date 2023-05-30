@@ -1,7 +1,6 @@
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
+#include "../lib/utils.h"
 
 struct GDTEntry
 {
@@ -22,5 +21,5 @@ struct GDTPointer
 } __attribute__((packed));
 
 void gdtInit(void);
-void gdtSetEntry(int32_t index, uint64_t base, uint64_t limit, uint8_t access, uint8_t granularity);
+void gdtSetEntry(int index, uint64_t base, uint64_t limit, uint8_t access, uint8_t granularity);
 void gdtFlush(void);

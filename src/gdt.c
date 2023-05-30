@@ -8,14 +8,14 @@ void gdtInit(void)
     gdtPointer.limit = (sizeof(struct GDTEntry) * 3) - 1;
     gdtPointer.base = (uintptr_t) &gdtEntries;
 
-    gdtSetEntry(0, 0, 0, 0, 0); // Null segment
-    gdtSetEntry(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); // Code segment
-    gdtSetEntry(2, 0, 0xFFFFFFFF, 0x92, 0xCF); // Data segment
+    gdtSetEntry(0, 0, 0, 0, 0);
+    gdtSetEntry(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
+    gdtSetEntry(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
 
     gdtFlush();
 }
 
-void gdtSetEntry(int32_t index, uint64_t base, uint64_t limit, uint8_t access, uint8_t granularity)
+void gdtSetEntry(int index, uint64_t base, uint64_t limit, uint8_t access, uint8_t granularity)
 {
     gdtEntries[index].baseLow = (base & 0xFFFF);
     gdtEntries[index].baseMiddle = (base >> 16) & 0xFF;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include "../lib/utils.h"
 
 struct IDTDescEntry
 {

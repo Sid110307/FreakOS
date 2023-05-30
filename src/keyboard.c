@@ -1,25 +1,12 @@
 #include "./include/keyboard.h"
 
-static inline void outPort(uint8_t value)
-{
-    asm volatile("outb %0, %1" : : "a"(value), "Nd"(PS2_DATA_PORT));
-}
-
-static inline uint8_t inPort(uint16_t port)
-{
-    uint8_t value;
-    asm volatile("inb %1, %0" : "=a"(value) : "Nd"(port));
-
-    return value;
-}
-
 void keyboardInit(void)
 {
     while (inPort(PS2_STATUS_PORT) & PS2_STATUS_OUTPUT_BUFFER) inPort(PS2_DATA_PORT);
-    outPort(0xF5);
+    outPort(PS2_DATA_PORT, 0xF5);
 
     while (inPort(PS2_STATUS_PORT) & PS2_STATUS_OUTPUT_BUFFER) inPort(PS2_DATA_PORT);
-    outPort(0xF4);
+    outPort(PS2_DATA_PORT, 0xF4);
 
     while (inPort(PS2_STATUS_PORT) & PS2_STATUS_OUTPUT_BUFFER) inPort(PS2_DATA_PORT);
 }
@@ -45,10 +32,10 @@ const char *keyboardGetKey(int onlyChar)
                 shift = 0;
                 return "";
             case 0x3A:
-                capsLock ^= 1;
+                capsLock = 0;
                 return "";
             case 0x45:
-                numLock ^= 1;
+                numLock = 0;
                 return "";
             default:
                 return "";
@@ -57,6 +44,8 @@ const char *keyboardGetKey(int onlyChar)
 
     switch (scancode)
     {
+        case 0x01:
+            return onlyChar == 0 ? "Escape" : "\e";
         case 0x02:
             return shift ? "!" : "1";
         case 0x03:
@@ -112,7 +101,7 @@ const char *keyboardGetKey(int onlyChar)
         case 0x1C:
             return onlyChar == 0 ? "Enter" : "\n";
         case 0x1D:
-            return onlyChar == 0 ? "Left Control" : "";
+            return onlyChar == 0 ? "Control" : "";
         case 0x1E:
             return (shift ^ capsLock) ? "A" : "a";
         case 0x1F:
@@ -138,8 +127,9 @@ const char *keyboardGetKey(int onlyChar)
         case 0x29:
             return (shift ^ capsLock) ? "~" : "`";
         case 0x2A:
+        case 0x36:
             shift = 1;
-            return onlyChar == 0 ? "Left Shift" : "";
+            return onlyChar == 0 ? "Shift" : "";
         case 0x2B:
             return (shift ^ capsLock) ? "|" : "\\";
         case 0x2C:
@@ -162,17 +152,13 @@ const char *keyboardGetKey(int onlyChar)
             return (shift ^ capsLock) ? ">" : ".";
         case 0x35:
             return (shift ^ capsLock) ? "?" : "/";
-        case 0x36:
-            shift = 1;
-            return onlyChar == 0 ? "Right Shift" : "";
         case 0x37:
             return onlyChar == 0 ? "Keypad *" : "*";
         case 0x38:
-            return onlyChar == 0 ? "Left Alt" : "";
+            return onlyChar == 0 ? "Alt" : "";
         case 0x39:
             return onlyChar == 0 ? "Space" : " ";
         case 0x3A:
-            capsLock ^= 1;
             return onlyChar == 0 ? "Caps Lock" : "";
         case 0x3B:
             return onlyChar == 0 ? "F1" : "";
