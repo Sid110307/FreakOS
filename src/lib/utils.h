@@ -1,15 +1,10 @@
 #pragma once
 
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int uint32_t;
-typedef unsigned long int uintptr_t;
-typedef unsigned long long uint64_t;
-typedef uint64_t size_t;
+#include "./libc/string.h"
 
 enum Colors
 {
-    COLOR_BLACK = 0x00,
+    COLOR_BLACK = 0,
     COLOR_BLUE,
     COLOR_GREEN,
     COLOR_CYAN,
@@ -40,52 +35,46 @@ static inline uint8_t inPort(uint16_t port)
     return value;
 }
 
-static inline int strcmp(const char *str1, const char *str2)
-{
-    while (*str1 && *str1 == *str2)
-    {
-        str1++;
-        str2++;
-    }
-
-    return *(const unsigned char *) str1 - *(const unsigned char *) str2;
-}
-
-static inline size_t strlen(const char *str)
-{
-    size_t len = 0;
-    while (str[len]) len++;
-
-    return len;
-}
-
-static inline const char *strstr(const char *str, const char *substr)
-{
-    while (*str)
-    {
-        const char *str1 = str;
-        const char *str2 = substr;
-        size_t n = strlen(substr);
-
-        while (n && *str1 && *str1 == *str2)
-        {
-            str1++;
-            str2++;
-
-            n--;
-        }
-
-        if (n == 0) return str;
-        str++;
-    }
-
-    return 0;
-}
-
 static inline uint16_t mod(uint16_t dividend, uint16_t divisor)
 {
     uint16_t remainder = dividend;
     while (remainder >= divisor) remainder -= divisor;
 
     return remainder;
+}
+
+static inline void *readFile(const char *path, const uint8_t *buffer)
+{
+    uint32_t size = 0;
+
+    char *message = "Reading file \"";
+    char *message2 = "\"...\n";
+
+    for (int i = 0; message[i]; ++i) outPort(0x3F8, message[i]);
+    for (int i = 0; path[i]; ++i) outPort(0x3F8, path[i]);
+    for (int i = 0; message2[i]; ++i) outPort(0x3F8, message2[i]);
+
+    // TODO: Fix this ASM code (it's not working)
+    asm volatile (
+            "movl $5, %%eax\n"
+            "movl %0, %%ebx\n"
+            "xorl %%ecx, %%ecx\n"
+            "int $0x80\n"
+            "movl %%eax, %1\n"
+            :
+            : "r" (path), "m" (size)
+            : "eax", "ebx", "ecx"
+            );
+
+    asm volatile (
+            "movl $3, %%eax\n"
+            "movl %0, %%ebx\n"
+            "movl %1, %%ecx\n"
+            "int $0x80\n"
+            :
+            : "r" (path), "r" (buffer)
+            : "eax", "ebx", "ecx"
+            );
+
+    return (void *) size;
 }

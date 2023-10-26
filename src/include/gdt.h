@@ -4,14 +4,9 @@
 
 struct GDTEntry
 {
-    uint16_t limitLow;
-    uint16_t baseLow;
-    uint8_t baseMiddle;
-    uint8_t access;
-    uint8_t granularity;
-    uint8_t baseHigh;
-    uint32_t baseUpper;
-    uint32_t reserved;
+    uint16_t limitLow, baseLow;
+    uint8_t baseMiddle, access, granularity, baseHigh;
+    uint32_t baseUpper, reserved;
 } __attribute__((packed));
 
 struct GDTPointer

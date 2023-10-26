@@ -7,6 +7,15 @@
 
 #define PS2_STATUS_OUTPUT_BUFFER 0x01
 
+enum Mode
+{
+    MODE_TYPE,
+    MODE_OVERWRITE
+};
+
 void keyboardInit(void);
 uint8_t keyboardGetScancode(void);
-const char *keyboardGetKey(int onlyChar);
+const char *keyboardGetKey();
+
+void keyboardSetMode(enum Mode mode);
+enum Mode keyboardGetMode(void);

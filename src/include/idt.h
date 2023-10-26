@@ -4,11 +4,8 @@
 
 struct IDTDescEntry
 {
-    uint16_t offset1;
-    uint16_t offset2;
-    uint16_t selector;
-    uint8_t zero;
-    uint8_t typeAttr;
+    uint16_t offset1, offset2, selector;
+    uint8_t zero, typeAttr;
 } __attribute__((packed));
 
 struct IDTDescriptor

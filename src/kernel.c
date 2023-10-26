@@ -1,5 +1,6 @@
 // TODO:
 //  - Add support for insert and delete keys (type and overwrite modes, using rendererSetPosColor)
+//  - Implement paging
 //  - Implement terminal scrolling
 //  - Add support for page up and page down keys
 //  - Implement a simple shell
@@ -13,12 +14,22 @@
 #include "./include/idt.h"
 #include "./include/keyboard.h"
 
+#define SCREEN_WIDTH 1920
+#define SCREEN_HEIGHT 1080
+
 void kernelInit(void)
 {
+    Framebuffer framebuffer = {
+            .address = (uint8_t *) 0x000B8000,
+            .width = SCREEN_WIDTH,
+            .height = SCREEN_HEIGHT,
+            .bytesPerPixel = 2
+    };
+
     gdtInit();
     idtInit();
     keyboardInit();
-    rendererInit();
+    rendererInit(framebuffer, "fonts/zap-ext-light18.psf");
 
     rendererSetColor(COLOR_BLUE, COLOR_BLACK);
     rendererWriteString("  ______                  _       ____    _____ \n");
@@ -35,7 +46,7 @@ void kernelInit(void)
     rendererSetColor(COLOR_LIGHT_GREY, COLOR_BLACK);
     rendererWriteString("========================================================\n");
     rendererSetColor(COLOR_DARK_GREY, COLOR_BLACK);
-    rendererWriteString("|| A simple operating system written in C and ASM ||\n");
+    rendererWriteString("||   A simple operating system written in C and ASM   ||\n");
     rendererSetColor(COLOR_LIGHT_BLUE, COLOR_BLACK);
     rendererWriteString("========================================================\n");
     rendererSetColor(COLOR_LIGHT_GREEN, COLOR_BLACK);
@@ -58,7 +69,7 @@ void main(void)
     kernelInit();
     while (1)
     {
-        const char *key = keyboardGetKey(0);
+        const char *key = keyboardGetKey();
 
         if (strcmp(key, "Escape") == 0)
         {
@@ -87,16 +98,30 @@ void main(void)
         {
             rendererWriteString("\b");
             rendererMoveCaret(-1, 0);
-        } else if (strcmp(key, "Insert") == 0 || strcmp(key, "Delete") == 0 ||
-                   strcmp(key, "PgUp") == 0 || strcmp(key, "PgDn") == 0 ||
-                   strcmp(key, "Control") == 0 || strcmp(key, "Shift") == 0 || strcmp(key, "Alt") == 0 ||
-                   strcmp(key, "Num Lock") == 0 || strcmp(key, "Scroll Lock") == 0 || strcmp(key, "Caps Lock") == 0 ||
-                   strstr(key, "F") != 0 || strstr(key, "Keypad") != 0)
+        } else if (strcmp(key, "Insert") == 0)
+        {
+            if (keyboardGetMode() == MODE_TYPE) keyboardSetMode(MODE_OVERWRITE);
+            else keyboardSetMode(MODE_TYPE);
+        } else if (strcmp(key, "Delete") == 0)
+        {
+            rendererWriteString("\b");
+            rendererMoveCaret(1, 0);
+        } else if (
+                strcmp(key, "PgUp") == 0 || strcmp(key, "PgDn") == 0 ||
+                strcmp(key, "Control") == 0 || strcmp(key, "Shift") == 0 || strcmp(key, "Alt") == 0 ||
+                strcmp(key, "Num Lock") == 0 || strcmp(key, "Scroll Lock") == 0 || strcmp(key, "Caps Lock") == 0)
             continue;
         else
         {
             rendererWriteString(key);
             rendererMoveCaret((int) strlen(key), 0);
         }
+
+        if (keyboardGetMode() == MODE_OVERWRITE)
+            rendererSetPosColor(COLOR_BLACK, COLOR_WHITE, rendererGetCaretPosX(), rendererGetCaretPosY(),
+                                rendererGetCaretPosX() + 1, rendererGetCaretPosY());
+        else
+            rendererSetPosColor(COLOR_WHITE, COLOR_BLACK, rendererGetCaretPosX(), rendererGetCaretPosY(),
+                                rendererGetCaretPosX() + 1, rendererGetCaretPosY());
     }
 }
