@@ -1,6 +1,6 @@
 #include "./include/idt.h"
 
-void idtInit(void)
+void idtInit()
 {
     struct IDTDescriptor idtDescriptor;
     idtDescriptor.size = 256 * sizeof(struct IDTDescEntry) - 1;

@@ -1,21 +1,17 @@
-MBALIGN  equ  1 << 0
-MEMINFO  equ  1 << 1
-MBFLAGS  equ  MBALIGN | MEMINFO
+MBFLAGS  equ  (1 << 0) | (1 << 1)
 MAGIC    equ  0x1BADB002
-CHECKSUM equ -(MAGIC + MBFLAGS)
 
 section .multiboot
-align 4
-dd MAGIC
-dd MBFLAGS
-dd CHECKSUM
+    align 4
+    dd MAGIC
+    dd MBFLAGS
+    dd -(MAGIC + MBFLAGS)
 
 section .bss
-align 16
+    align 16
 
 stackBottom:
 	resb 16384
-
 stackTop:
 
 section .text
@@ -31,5 +27,4 @@ _start:
 .hang:
 	hlt
 	jmp .hang
-
 .end:

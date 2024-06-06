@@ -19,10 +19,25 @@ $ git clone https://github.com/Sid110307/FreakOS.git
 $ cd FreakOS
 ```
 
-- Build and run the OS
+- Build the OS
 
 ```bash
 $ make -s
+```
+
+- Run the OS on QEMU
+
+```bash
+$ make run -s
+```
+
+- To run the OS on real hardware
+
+```bash
+$ make iso -s
+# The FreakOS.iso file will be created in the bin directory
+# Burn the ISO file to a USB drive
+$ dd if=bin/FreakOS.iso of=/dev/sdX bs=4M
 ```
 
 ## License

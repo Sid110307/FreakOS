@@ -15,27 +15,22 @@
 
 typedef struct
 {
-    uint32_t magic, version, headerSize, flags, numGlyphs, charSize, width, height;
-} PSF1Header;
-
-typedef struct
-{
     uint8_t *address;
     size_t width, height, bytesPerPixel;
 } Framebuffer;
 
-void rendererInit(Framebuffer fb, const char *fontPath);
+void rendererInit(Framebuffer fb);
 void rendererSetColor(enum Colors fg, enum Colors bg);
 void rendererSetPosColor(enum Colors fg, enum Colors bg, size_t x1, size_t y1, size_t x2, size_t y2);
-void rendererScroll(void);
+void rendererScroll();
 void rendererPutCharAt(uint8_t c, enum Colors color, size_t x, size_t y);
 void rendererPutChar(uint8_t c);
-void rendererWrite(const char *data, size_t size);
-void rendererWriteString(const char *data);
-void rendererClearScreen(void);
+void rendererWriteString(const char *data, size_t size);
+void rendererWrite(const char *data);
+void rendererClearScreen();
 const char *rendererGetLine(size_t line);
 void rendererSetCaretPos(size_t x, size_t y);
-uint16_t rendererGetCaretPos(void);
+uint16_t rendererGetCaretPos();
 void rendererMoveCaret(size_t x, size_t y);
-size_t rendererGetCaretPosX(void);
-size_t rendererGetCaretPosY(void);
+size_t rendererGetCaretPosX();
+size_t rendererGetCaretPosY();

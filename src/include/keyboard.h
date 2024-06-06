@@ -13,9 +13,9 @@ enum Mode
     MODE_OVERWRITE
 };
 
-void keyboardInit(void);
-uint8_t keyboardGetScancode(void);
+void keyboardInit();
+uint8_t keyboardGetScancode();
 const char *keyboardGetKey();
 
 void keyboardSetMode(enum Mode mode);
-enum Mode keyboardGetMode(void);
+enum Mode keyboardGetMode();

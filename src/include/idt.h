@@ -16,5 +16,5 @@ struct IDTDescriptor
 
 extern void idtLoad(struct IDTDescriptor *idtDescriptor);
 
-void idtInit(void);
+void idtInit();
 void idtSetEntry(uint8_t index, uint32_t offset, uint16_t selector, uint8_t typeAttr);

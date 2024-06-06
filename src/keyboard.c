@@ -1,16 +1,8 @@
 #include "./include/keyboard.h"
 
 enum Mode keyboardMode = MODE_TYPE;
-const char *scancodeTable[] = {
-        "Unknown", "Escape", "1", "2", "3", "4", "5", "6", "7", "8",
-        "9", "0", "-", "=", "Backspace", "Tab", "q", "w", "e", "r",
-        "t", "y", "u", "i", "o", "p", "[", "]", "Enter", "Left Ctrl",
-        "a", "s", "d", "f", "g", "h", "j", "k", "l", ";",
-        "'", "`", "Right Shift", "\\", "z", "x", "c", "v", "b",
-        "n", "m", ",", ".", "/", "Left Shift", "Keypad *", "Left Alt", "Space"
-};
 
-void keyboardInit(void)
+void keyboardInit()
 {
     while (inPort(PS2_STATUS_PORT) & PS2_STATUS_OUTPUT_BUFFER) inPort(PS2_DATA_PORT);
     outPort(PS2_DATA_PORT, 0xF5);
@@ -21,7 +13,7 @@ void keyboardInit(void)
     while (inPort(PS2_STATUS_PORT) & PS2_STATUS_OUTPUT_BUFFER) inPort(PS2_DATA_PORT);
 }
 
-uint8_t keyboardGetScancode(void)
+uint8_t keyboardGetScancode()
 {
     while (!(inPort(PS2_STATUS_PORT) & PS2_STATUS_OUTPUT_BUFFER));
     return inPort(PS2_DATA_PORT);
@@ -29,37 +21,79 @@ uint8_t keyboardGetScancode(void)
 
 const char *keyboardGetKey()
 {
+    static const char *scancodeMap[] = {
+            "Unknown", "Escape", "1", "2", "3", "4", "5", "6",
+            "7", "8", "9", "0", "-", "=", "Backspace", "Tab",
+            "q", "w", "e", "r", "t", "y", "u", "i",
+            "o", "p", "[", "]", "Enter", "Left Ctrl", "a", "s",
+            "d", "f", "g", "h", "j", "k", "l", ";",
+            "'", "`", "Left Shift", "\\", "z", "x", "c", "v",
+            "b", "n", "m", ",", ".", "/", "Right Shift", "Print Screen", "Left Alt",
+            "Space", "Caps Lock", "F1", "F2", "F3", "F4", "F5", "F6",
+            "F7", "F8", "F9", "F10", "Num Lock", "Scroll Lock", "Home", "Up",
+            "Page Up", "-", "Left", "5", "Right", "+", "End", "Down",
+            "Page Down", "Insert", "Delete", "Unknown", "Unknown", "Unknown", "Unknown", "F11",
+            "F12", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown"
+    };
+
+    static const char *shiftScancodeMap[] = {
+            "Unknown", "Escape", "!", "@", "#", "$", "%", "^",
+            "&", "*", "(", ")", "_", "+", "Backspace", "Tab",
+            "Q", "W", "E", "R", "T", "Y", "U", "I",
+            "O", "P", "{", "}", "Enter", "Left Ctrl", "A", "S",
+            "D", "F", "G", "H", "J", "K", "L", ":",
+            "\"", "~", "Left Shift", "|", "Z", "X", "C", "V",
+            "B", "N", "M", "<", ">", "?", "Right Shift", "Print Screen", "Left Alt",
+            "Space", "Caps Lock", "F1", "F2", "F3", "F4", "F5", "F6",
+            "F7", "F8", "F9", "F10", "Num Lock", "Scroll Lock", "Home", "Up",
+            "Page Up", "-", "Left", "5", "Right", "+", "End", "Down",
+            "Page Down", "Insert", "Delete", "Unknown", "Unknown", "Unknown", "Unknown", "F11",
+            "F12", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown"
+    };
+
+    static const char *capsScancodeMap[] = {
+            "Unknown", "Escape", "1", "2", "3", "4", "5", "6",
+            "7", "8", "9", "0", "-", "=", "Backspace", "Tab",
+            "Q", "W", "E", "R", "T", "Y", "U", "I",
+            "O", "P", "[", "]", "Enter", "Left Ctrl", "A", "S",
+            "D", "F", "G", "H", "J", "K", "L", ";",
+            "'", "`", "Left Shift", "\\", "Z", "X", "C", "V",
+            "B", "N", "M", ",", ".", "/", "Right Shift", "Print Screen", "Left Alt",
+            "Space", "Caps Lock", "F1", "F2", "F3", "F4", "F5", "F6",
+            "F7", "F8", "F9", "F10", "Num Lock", "Scroll Lock", "Home", "Up",
+            "Page Up", "-", "Left", "5", "Right", "+", "End", "Down",
+            "Page Down", "Insert", "Delete", "Unknown", "Unknown", "Unknown", "Unknown", "F11",
+            "F12", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown",
+            "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown", "Unknown"
+    };
+
     uint8_t scancode = keyboardGetScancode();
     static int shift = 0, caps = 0;
 
-    switch (scancode)
-    {
-        case 0x2A:
-        case 0x36:
-            shift = 1;
-            return "";
-        case 0xAA:
-        case 0xB6:
-            shift = 0;
-            return "";
-        case 0x3A:
-            caps ^= 1;
-            return "";
-        case 0x0E:
-            return "Backspace";
-        case 0x1C:
-            return "Enter";
-        case 0x39:
-            return "Space";
-        default:
-            if (scancode > sizeof(scancodeTable) / sizeof(*scancodeTable) - 1) return "";
-            return shift ^ caps
-                   ? scancodeTable[scancode][0] >= 'a' && scancodeTable[scancode][0] <= 'z'
-                     ? scancodeTable[scancode] - 32
-                     : scancodeTable[scancode]
-                   : scancodeTable[scancode];
-    }
+    if (scancode == 0x2A || scancode == 0x36) shift = 1;
+    else if (scancode == 0xAA || scancode == 0xB6) shift = 0;
+    else if (scancode == 0x3A) caps = !caps;
+
+    return shift ? shiftScancodeMap[scancode] : caps ? capsScancodeMap[scancode] : scancodeMap[scancode];
 }
 
 void keyboardSetMode(enum Mode mode) { keyboardMode = mode; }
-enum Mode keyboardGetMode(void) { return keyboardMode; }
+enum Mode keyboardGetMode() { return keyboardMode; }

@@ -3,7 +3,7 @@
 struct GDTEntry gdtEntries[3];
 struct GDTPointer gdtPointer;
 
-void gdtInit(void)
+void gdtInit()
 {
     gdtPointer.limit = (sizeof(struct GDTEntry) * 3) - 1;
     gdtPointer.base = (uintptr_t) &gdtEntries;
@@ -30,7 +30,7 @@ void gdtSetEntry(int index, uint64_t base, uint64_t limit, uint8_t access, uint8
     gdtEntries[index].reserved = 0;
 }
 
-void gdtFlush(void)
+void gdtFlush()
 {
-    asm volatile("lgdt (%0)" : : "r" (&gdtPointer));
+    __asm__ volatile("lgdt (%0)" : : "r" (&gdtPointer));
 }

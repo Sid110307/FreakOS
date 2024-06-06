@@ -15,6 +15,6 @@ struct GDTPointer
     uint64_t base;
 } __attribute__((packed));
 
-void gdtInit(void);
+void gdtInit();
 void gdtSetEntry(int index, uint64_t base, uint64_t limit, uint8_t access, uint8_t granularity);
-void gdtFlush(void);
+void gdtFlush();
