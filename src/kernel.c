@@ -62,53 +62,54 @@ void kernelInit()
     rendererMoveCaret(0, 16);
 }
 
+void handleInput()
+{
+    const char *key = keyboardGetKey();
+
+    if (strcmp(key, "Escape") == 0)
+    {
+        rendererClearScreen();
+        rendererSetCaretPos(0, 0);
+    } else if (strcmp(key, "Space") == 0)
+    {
+        rendererWrite(" ");
+        rendererMoveCaret(1, 0);
+    } else if (strcmp(key, "Home") == 0) rendererSetCaretPos(0, rendererGetCaretPosY());
+    else if (strcmp(key, "End") == 0)
+        rendererSetCaretPos((int) strlen(rendererGetLine(rendererGetCaretPosY())), rendererGetCaretPosY());
+    else if (strcmp(key, "Up") == 0) rendererMoveCaret((int) rendererGetCaretPosX(), -1);
+    else if (strcmp(key, "Down") == 0) rendererMoveCaret((int) rendererGetCaretPosX(), 1);
+    else if (strcmp(key, "Left") == 0) rendererMoveCaret(-1, (int) rendererGetCaretPosY());
+    else if (strcmp(key, "Right") == 0) rendererMoveCaret(1, (int) rendererGetCaretPosY());
+    else if (strcmp(key, "Tab") == 0)
+    {
+        rendererWrite("\t");
+        rendererMoveCaret(INDENTATION, 0);
+    } else if (strcmp(key, "Enter") == 0)
+    {
+        rendererWrite("\n");
+        rendererSetCaretPos(0, rendererGetCaretPosY() + 1);
+    } else if (strcmp(key, "Backspace") == 0)
+    {
+        rendererWrite("\b");
+        rendererMoveCaret(-1, 0);
+    } else if (strcmp(key, "Delete") == 0)
+    {
+        rendererWrite("\b");
+        rendererMoveCaret(1, 0);
+    } else if (strcmp(key, "PgUp") == 0 || strcmp(key, "PgDn") == 0 || strcmp(key, "Control") == 0 ||
+               strcmp(key, "Insert") == 0 || strcmp(key, "Shift") == 0 || strcmp(key, "Alt") == 0 ||
+               strcmp(key, "Num Lock") == 0 || strcmp(key, "Scroll Lock") == 0 || strcmp(key, "Caps Lock") == 0 ||
+               strcmp(key, "Unknown") == 0) {}
+    else
+    {
+        rendererWrite(key);
+        rendererMoveCaret((int) strlen(key), 0);
+    }
+}
+
 void main()
 {
     kernelInit();
-    while (1)
-    {
-        const char *key = keyboardGetKey();
-
-        if (strcmp(key, "Escape") == 0)
-        {
-            rendererClearScreen();
-            rendererSetCaretPos(0, 0);
-        } else if (strcmp(key, "Space") == 0)
-        {
-            rendererWrite(" ");
-            rendererMoveCaret(1, 0);
-        } else if (strcmp(key, "Home") == 0) rendererSetCaretPos(0, rendererGetCaretPosY());
-        else if (strcmp(key, "End") == 0)
-            rendererSetCaretPos((int) strlen(rendererGetLine(rendererGetCaretPosY())), rendererGetCaretPosY());
-        else if (strcmp(key, "Up") == 0) rendererMoveCaret((int) rendererGetCaretPosX(), -1);
-        else if (strcmp(key, "Down") == 0) rendererMoveCaret((int) rendererGetCaretPosX(), 1);
-        else if (strcmp(key, "Left") == 0) rendererMoveCaret(-1, (int) rendererGetCaretPosY());
-        else if (strcmp(key, "Right") == 0) rendererMoveCaret(1, (int) rendererGetCaretPosY());
-        else if (strcmp(key, "Tab") == 0)
-        {
-            rendererWrite("\t");
-            rendererMoveCaret(INDENTATION, 0);
-        } else if (strcmp(key, "Enter") == 0)
-        {
-            rendererWrite("\n");
-            rendererSetCaretPos(0, rendererGetCaretPosY() + 1);
-        } else if (strcmp(key, "Backspace") == 0)
-        {
-            rendererWrite("\b");
-            rendererMoveCaret(-1, 0);
-        } else if (strcmp(key, "Delete") == 0)
-        {
-            rendererWrite("\b");
-            rendererMoveCaret(1, 0);
-        } else if (strcmp(key, "PgUp") == 0 || strcmp(key, "PgDn") == 0 || strcmp(key, "Control") == 0 ||
-                   strcmp(key, "Insert") == 0 || strcmp(key, "Shift") == 0 || strcmp(key, "Alt") == 0 ||
-                   strcmp(key, "Num Lock") == 0 || strcmp(key, "Scroll Lock") == 0 || strcmp(key, "Caps Lock") == 0 ||
-                   strcmp(key, "Unknown") == 0)
-            continue;
-        else
-        {
-            rendererWrite(key);
-            rendererMoveCaret((int) strlen(key), 0);
-        }
-    }
+    while (1) handleInput();
 }

@@ -106,25 +106,7 @@ void rendererPutChar(uint8_t c)
 }
 
 void rendererWriteString(const char *data, size_t size) { for (size_t i = 0; i < size; ++i) rendererPutChar(data[i]); }
-void rendererWrite(const char *data)
-{
-    rendererWriteString(data, strlen(data));
-
-    char test[256];
-    for (size_t i = 0; i < strlen(data); ++i)
-    {
-        if (data[i] == '\n')test[i] = '\\', test[i + 1] = 'n';
-        else if (data[i] == '\t')test[i] = '\\', test[i + 1] = 't';
-        else if (data[i] == '\b')test[i] = '\\', test[i + 1] = 'b';
-        else if (data[i] == '\r')test[i] = '\\', test[i + 1] = 'r';
-        else if (data[i] == '\f')test[i] = '\\', test[i + 1] = 'f';
-        else if (data[i] == '\v')test[i] = '\\', test[i + 1] = 'v';
-        else if (data[i] == '\a')test[i] = '\\', test[i + 1] = 'a';
-        else test[i] = data[i];
-    }
-
-    log("%s: %dx%d\n", test, rendererColumn, rendererRow);
-}
+void rendererWrite(const char *data) { rendererWriteString(data, strlen(data)); }
 
 void rendererClearScreen()
 {
