@@ -1,4 +1,4 @@
- global idtLoad
- idtLoad:
-     lidt [eax]
-     ret
+global idtLoad
+idtLoad:
+    lidt [eax]
+    ret

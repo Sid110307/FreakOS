@@ -1,4 +1,4 @@
-#include "./include/gdt.h"
+#include "include/gdt.h"
 
 struct GDTEntry gdtEntries[3];
 struct GDTPointer gdtPointer;
@@ -30,7 +30,4 @@ void gdtSetEntry(int index, uint64_t base, uint64_t limit, uint8_t access, uint8
     gdtEntries[index].reserved = 0;
 }
 
-void gdtFlush()
-{
-    __asm__ volatile("lgdt (%0)" : : "r" (&gdtPointer));
-}
+void gdtFlush() { __asm__ volatile("lgdt (%0)" : : "r" (&gdtPointer)); }

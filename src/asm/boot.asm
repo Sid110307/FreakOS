@@ -6,13 +6,20 @@ section .multiboot
     dd MAGIC
     dd MBFLAGS
     dd -(MAGIC + MBFLAGS)
+    dd 0
+    dd 0
+    dd 0
+    dd 0
+    dd 0
+    dd 0
+    dd 800
+    dd 600
+    dd 32
 
 section .bss
     align 16
-
-stackBottom:
-	resb 16384
-stackTop:
+    stackBottom: resb 16384
+    stackTop:
 
 section .text
 	global _start

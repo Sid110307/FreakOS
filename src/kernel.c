@@ -5,13 +5,12 @@
 //  - Implement a simple shell
 //  - Implement a filesystem driver
 //  - Add support for mouse input
-//  - Add audio support
 //  - Implement a graphical interface
 
-#include "./include/renderer.h"
-#include "./include/gdt.h"
-#include "./include/idt.h"
-#include "./include/keyboard.h"
+#include "include/renderer.h"
+#include "include/gdt.h"
+#include "include/idt.h"
+#include "include/keyboard.h"
 
 #define SCREEN_WIDTH 1920
 #define SCREEN_HEIGHT 1080
@@ -72,7 +71,7 @@ void main()
 
         if (strcmp(key, "Escape") == 0)
         {
-            rendererWrite("\\e");
+            rendererClearScreen();
             rendererSetCaretPos(0, 0);
         } else if (strcmp(key, "Space") == 0)
         {
@@ -97,30 +96,19 @@ void main()
         {
             rendererWrite("\b");
             rendererMoveCaret(-1, 0);
-        } else if (strcmp(key, "Insert") == 0)
-        {
-            if (keyboardGetMode() == MODE_TYPE) keyboardSetMode(MODE_OVERWRITE);
-            else keyboardSetMode(MODE_TYPE);
         } else if (strcmp(key, "Delete") == 0)
         {
             rendererWrite("\b");
             rendererMoveCaret(1, 0);
-        } else if (
-                strcmp(key, "PgUp") == 0 || strcmp(key, "PgDn") == 0 ||
-                strcmp(key, "Control") == 0 || strcmp(key, "Shift") == 0 || strcmp(key, "Alt") == 0 ||
-                strcmp(key, "Num Lock") == 0 || strcmp(key, "Scroll Lock") == 0 || strcmp(key, "Caps Lock") == 0)
+        } else if (strcmp(key, "PgUp") == 0 || strcmp(key, "PgDn") == 0 || strcmp(key, "Control") == 0 ||
+                   strcmp(key, "Insert") == 0 || strcmp(key, "Shift") == 0 || strcmp(key, "Alt") == 0 ||
+                   strcmp(key, "Num Lock") == 0 || strcmp(key, "Scroll Lock") == 0 || strcmp(key, "Caps Lock") == 0 ||
+                   strcmp(key, "Unknown") == 0)
             continue;
         else
         {
             rendererWrite(key);
             rendererMoveCaret((int) strlen(key), 0);
         }
-
-        if (keyboardGetMode() == MODE_OVERWRITE)
-            rendererSetPosColor(COLOR_BLACK, COLOR_WHITE, rendererGetCaretPosX(), rendererGetCaretPosY(),
-                                rendererGetCaretPosX() + 1, rendererGetCaretPosY());
-        else
-            rendererSetPosColor(COLOR_WHITE, COLOR_BLACK, rendererGetCaretPosX(), rendererGetCaretPosY(),
-                                rendererGetCaretPosX() + 1, rendererGetCaretPosY());
     }
 }

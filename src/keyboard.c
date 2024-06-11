@@ -1,6 +1,4 @@
-#include "./include/keyboard.h"
-
-enum Mode keyboardMode = MODE_TYPE;
+#include "include/keyboard.h"
 
 void keyboardInit()
 {
@@ -94,6 +92,3 @@ const char *keyboardGetKey()
 
     return shift ? shiftScancodeMap[scancode] : caps ? capsScancodeMap[scancode] : scancodeMap[scancode];
 }
-
-void keyboardSetMode(enum Mode mode) { keyboardMode = mode; }
-enum Mode keyboardGetMode() { return keyboardMode; }

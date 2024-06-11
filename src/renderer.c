@@ -1,4 +1,4 @@
-#include "./include/renderer.h"
+#include "include/renderer.h"
 
 Framebuffer framebuffer;
 size_t rendererRow, rendererColumn;
@@ -70,44 +70,36 @@ void rendererPutChar(uint8_t c)
     {
         case '\n':
             rendererColumn = 0;
-            ++rendererRow;
+            rendererRow++;
             break;
         case '\t':
             rendererColumn += INDENTATION;
             break;
         case '\b':
-            if (rendererColumn > 0)
-            {
-                rendererColumn--;
-                rendererPutCharAt('\0', rendererColor, rendererColumn, rendererRow);
-            }
-
+            if (rendererColumn > 0) rendererColumn--;
             break;
         case '\r':
             rendererColumn = 0;
             break;
         case '\f':
-            rendererRow = 0;
-            break;
-        case '\v':
-            ++rendererRow;
-            break;
-        case '\e':
             rendererClearScreen();
             break;
+        case '\v':
+            rendererScroll();
+            break;
         case '\a':
-            outPort(0x61, inPort(0x61) | 3);
+            playSound(440, 100);
             break;
         default:
-            rendererPutCharAt((char) c, rendererColor, rendererColumn, rendererRow);
-            ++rendererColumn;
+            rendererPutCharAt(c, rendererColor, rendererColumn, rendererRow);
+            rendererColumn++;
             break;
     }
 
     if (rendererColumn >= framebuffer.width)
     {
         rendererColumn = 0;
-        ++rendererRow;
+        rendererRow++;
     }
 
     if (rendererRow >= framebuffer.height)
@@ -118,7 +110,25 @@ void rendererPutChar(uint8_t c)
 }
 
 void rendererWriteString(const char *data, size_t size) { for (size_t i = 0; i < size; ++i) rendererPutChar(data[i]); }
-void rendererWrite(const char *data) { rendererWriteString(data, strlen(data)); }
+void rendererWrite(const char *data)
+{
+    rendererWriteString(data, strlen(data));
+
+    char test[256];
+    for (size_t i = 0; i < strlen(data); ++i)
+    {
+        if (data[i] == '\n')test[i] = '\\', test[i + 1] = 'n';
+        else if (data[i] == '\t')test[i] = '\\', test[i + 1] = 't';
+        else if (data[i] == '\b')test[i] = '\\', test[i + 1] = 'b';
+        else if (data[i] == '\r')test[i] = '\\', test[i + 1] = 'r';
+        else if (data[i] == '\f')test[i] = '\\', test[i + 1] = 'f';
+        else if (data[i] == '\v')test[i] = '\\', test[i + 1] = 'v';
+        else if (data[i] == '\a')test[i] = '\\', test[i + 1] = 'a';
+        else test[i] = data[i];
+    }
+
+    log("%s: %dx%d\n", test, rendererColumn, rendererRow);
+}
 
 void rendererClearScreen()
 {
@@ -150,8 +160,20 @@ uint16_t rendererGetCaretPos() { return (uint16_t) (rendererRow * framebuffer.wi
 
 void rendererMoveCaret(size_t x, size_t y)
 {
-    rendererSetCaretPos(mod(mod(rendererColumn + x, framebuffer.width), framebuffer.width),
-                        mod((int) rendererRow + y, framebuffer.height));
+    rendererColumn += x;
+    rendererRow += y;
+
+    if (rendererColumn >= framebuffer.width)
+    {
+        rendererColumn = 0;
+        ++rendererRow;
+    }
+
+    if (rendererRow >= framebuffer.height)
+    {
+        rendererScroll();
+        rendererRow--;
+    }
 }
 
 size_t rendererGetCaretPosX() { return rendererColumn; }

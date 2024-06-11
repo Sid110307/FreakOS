@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../lib/utils.h"
+#include "utils.h"
+#include "string.h"
+#include "audio.h"
 
 #define INDENTATION 4
 
@@ -8,10 +10,6 @@
 #define DATA_PORT 0x3D5
 #define CARET_HIGH 0x0A
 #define CARET_LOW 0x0B
-
-#pragma once
-
-#include "../lib/utils.h"
 
 typedef struct
 {
