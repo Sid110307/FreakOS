@@ -12,13 +12,13 @@
 #include "include/idt.h"
 #include "include/keyboard.h"
 
-#define SCREEN_WIDTH 1920
-#define SCREEN_HEIGHT 1080
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
 void kernelInit()
 {
     Framebuffer framebuffer = {
-            .address = (uint8_t *) 0x000B8000,
+            .address = (uint8_t *) 0xB8000,
             .width = SCREEN_WIDTH,
             .height = SCREEN_HEIGHT,
             .bytesPerPixel = 2

@@ -25,7 +25,7 @@ void rendererSetPosColor(enum Colors fg, enum Colors bg, size_t x1, size_t y1, s
     for (size_t y = y1; y < y2; ++y)
         for (size_t x = x1; x < x2; ++x)
         {
-            size_t pixelOffset = (y * framebuffer.width + x) * framebuffer.bytesPerPixel;
+            size_t pixelOffset = y * framebuffer.width + x * framebuffer.bytesPerPixel;
             framebuffer.address[pixelOffset] = fg;
             framebuffer.address[pixelOffset + 1] = bg;
         }
@@ -36,29 +36,25 @@ void rendererScroll()
     for (size_t y = 0; y < framebuffer.height - 1; ++y)
         for (size_t x = 0; x < framebuffer.width; ++x)
         {
-            size_t pixelOffset = (y * framebuffer.width + x) * framebuffer.bytesPerPixel,
-                    pixelOffsetBelow = ((y + 1) * framebuffer.width + x) * framebuffer.bytesPerPixel;
+            size_t pixelOffset = y * framebuffer.width + x * framebuffer.bytesPerPixel,
+                    pixelOffsetBelow = (y + 1) * framebuffer.width + x * framebuffer.bytesPerPixel;
 
             framebuffer.address[pixelOffset] = framebuffer.address[pixelOffsetBelow];
             framebuffer.address[pixelOffset + 1] = framebuffer.address[pixelOffsetBelow + 1];
-            framebuffer.address[pixelOffset + 2] = framebuffer.address[pixelOffsetBelow + 2];
-            framebuffer.address[pixelOffset + 3] = framebuffer.address[pixelOffsetBelow + 3];
         }
 
     for (size_t x = 0; x < framebuffer.width; ++x)
     {
-        size_t pixelOffset = ((framebuffer.height - 1) * framebuffer.width + x) * framebuffer.bytesPerPixel;
+        size_t pixelOffset = (framebuffer.height - 1) * framebuffer.width + x * framebuffer.bytesPerPixel;
 
         framebuffer.address[pixelOffset] = 0;
         framebuffer.address[pixelOffset + 1] = 0;
-        framebuffer.address[pixelOffset + 2] = 0;
-        framebuffer.address[pixelOffset + 3] = 255;
     }
 }
 
 void rendererPutCharAt(uint8_t c, enum Colors color, size_t x, size_t y)
 {
-    size_t pixelOffset = (y * framebuffer.width + x) * framebuffer.bytesPerPixel;
+    size_t pixelOffset = y * framebuffer.width + x * framebuffer.bytesPerPixel;
 
     framebuffer.address[pixelOffset] = c;
     framebuffer.address[pixelOffset + 1] = color;
@@ -135,19 +131,23 @@ void rendererClearScreen()
     for (size_t y = 0; y < framebuffer.height; ++y)
         for (size_t x = 0; x < framebuffer.width; ++x)
         {
-            size_t pixelOffset = (y * framebuffer.width + x) * framebuffer.bytesPerPixel;
+            size_t pixelOffset = y * framebuffer.width + x * framebuffer.bytesPerPixel;
 
             framebuffer.address[pixelOffset] = 0;
             framebuffer.address[pixelOffset + 1] = 0;
-            framebuffer.address[pixelOffset + 2] = 0;
-            framebuffer.address[pixelOffset + 3] = 255;
         }
 
 }
 
 const char *rendererGetLine(size_t line)
 {
-    return (const char *) framebuffer.address + (line * framebuffer.width * framebuffer.bytesPerPixel);
+    if (line >= framebuffer.height) return "";
+
+    static char lineStr[256];
+    for (size_t i = 0; i < framebuffer.width; ++i)
+        lineStr[i] = (char) framebuffer.address[line * framebuffer.width + i * framebuffer.bytesPerPixel];
+
+    return lineStr;
 }
 
 void rendererSetCaretPos(size_t x, size_t y)
